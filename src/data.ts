@@ -7,7 +7,7 @@ export interface Message {
   content: string;
 }
 
-export const MSG_COUNT = 3;
+export const MSG_COUNT = 999;
 export const TIME_INTERVAL = 1000;
 
 // test messages
