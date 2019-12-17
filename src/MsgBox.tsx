@@ -1,27 +1,35 @@
 import React, { useState, useEffect } from "react";
-import { Message, msgPipe } from "./data";
+import { Message } from "./data";
 
 import "./MsgBox.css";
+import { Subject } from "rxjs";
+import { Measurer } from "./Measurer";
+import { MsgShow } from "./MsgShow";
+
+export type MeasuredMsg = Message & { height: number };
 
 export const MsgBox: React.FC = () => {
-  const [msgs, pushMsg] = useState<Message[]>([]);
+  // 计算出了高度的msg放进measuredPipe中向下传递
+  // measuredPipe归本组件管理，用于应对页面上有多个相同组件的情况
+  const [measuredPipe, setMeasurePipe] = useState<Subject<MeasuredMsg> | null>(
+    null
+  );
 
   useEffect(() => {
-    const subscription = msgPipe.subscribe((msg) => {
-      pushMsg((msgs) => [...msgs, msg]);
-    });
+    const pipe = new Subject<MeasuredMsg>();
+    setMeasurePipe(pipe);
     return () => {
-      subscription.unsubscribe();
+      // 该组件下线的时候关闭掉自己生成的管道
+      pipe.complete();
     };
   }, []);
 
   return (
-    <div className="msg-box" style={{ maxHeight: 600, overflowY: "auto" }}>
-      {msgs.map((msg) => (
-        <div key={msg.id} className="msg-block">
-          {msg.id + 1} - {msg.content}
-        </div>
-      ))}
-    </div>
+    measuredPipe && (
+      <div className="msg-box" style={{ maxHeight: 600, overflowY: "auto" }}>
+        <Measurer measuredPipe={measuredPipe} />
+        <MsgShow measuredPipe={measuredPipe} />
+      </div>
+    )
   );
 };

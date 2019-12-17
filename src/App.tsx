@@ -5,6 +5,7 @@ import { MsgBox } from "./MsgBox";
 import { msgPipe, messages, MSG_COUNT, TIME_INTERVAL } from "./data";
 
 const App: React.FC = () => {
+  // app中启动定时器，向数据管道中发送数据
   useEffect(() => {
     let index = 0;
     let tickGenerator: number;
